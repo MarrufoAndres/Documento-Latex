@@ -1,0 +1,276 @@
+\documentclass[12pts, A3 ,twosides]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage[margin=3cm]{geometry}
+\usepackage{mathtools}
+\setcounter{page}{0}
+\usepackage{setspace}
+\usepackage{wrapfig}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\title{Modelos de Datos}
+\author{Marrufo Cimé Andrés Alfonso}
+\date{\today}
+
+
+\begin{document}
+\renewcommand{\baselinestretch}{2}
+\setlength{\unitlength}{1 cm} %Especificar unidad de trabajo
+\thispagestyle{empty}
+\begin{picture}(18,4)
+\put(0,0){\includegraphics[width=3cm,height=3.2cm]{FMAT.png}}
+\put(12,0){\includegraphics[width=3cm,height=3.2cm]{UADY.jpg}}
+\end{picture}
+\\
+\\
+\begin{center}
+\textbf{{\Huge Universidad Autónoma de Yucatán}\\[0.5cm]
+{\LARGE Facultad de Matemáticas}}\\[1.25cm]
+{\Large{Base de Datos}}\\[1cm]
+{\LARGE \textbf{Parcial 1}}\\[.5cm]
+{\LARGE {Investigación 1}}\\[.5cm]
+{\LARGE {Modelos de Datos}}\\
+{\Large \textbf{Red, Orientado a Objetos y NoSQL}}\\[1cm]
+{\large Marrufo Cimé Andrés Alfonso\\ Larry Yusef Carrillo Herrera}\\
+%\large{}\\
+licenciatura en ciencias de la computación\\[2cm]
+Mérida, Yucatán - \today
+\end{center}
+\newpage
+\section{Modelo de Red}
+El modelo de red junto con el modelo jerarquico, fue un modelo de datos importante para implementar un gran numero de SGDB comerciales. Las vistas y construcciones del lenguaje para el modelo de red fueron definidas por el comité CODASYL (Conference on Data Systems Languages), Por lo que suele denominárse modelo de red CODASYL. El modelo y el lenguaje de red originales se dieron a conocer en el informe de 1971 del Data Base Task Gruop (Grupo de trabajo sobre bases de datos). Mas que consentrarnos en los detalles de un informe CODASYL en particular, explicaremos los conceptos generales en que se sustentan las bases de datos tipo red y emplearemos el termino modelo de red en vez de modelo CODASYL o modelo DBTG. Cuando presentemos las ordenes para un lenguaje de datos de red nuestro lenguaje anfitrion sera PASCAL. El infome CODASYL/DGTB original uso COBOL.
+
+\subsection{Estructuras de una base de datos de red}
+Hay dos estructuras de datos basicas en el modelo de red: Registro y Conjuntos.
+\subsubsection{Registros, tipos de registro y elementos de información}
+Cada registro consiste en un grupo de valores de datos relacionados entre sí, estos se clasifican en tipos de registros, Con este modelo de red es posible definir elementos de información complejos. Un vector es un elemento de información que puede tener multiples valores de un solo registro. Asi tambien, todos los tipos de elementos de informacion que se acaban de mencionar se denominan elementos de información reales. Tambien de igual manera es posible definir elementos de información virtual o derivados.
+
+\subsubsection{Tipos de conjuntos y sus propiedades básicas}
+Un tipo de conjunto es una descripción de un vinculo I:N entre dos tipos de registro, este tipo de representación diagramática se llama diagrama de Bachman. Cada tipo de conjuntos consta de 3 elementos básicos:
+\begin{itemize}
+\item[•] Un nombre para el tipo de conjuntos.
+\item[•] Un tipo de registros propietario.
+\item[•] Un tipo de registros miembro.
+\end{itemize}
+\includegraphics[scale=.5]{bachman.png}\\
+En la base de datos habra muchas ocurrencias conjunto (o ejemplares de conjunto) que corresponderan a un tipo de conjuntos. Así cada ocurrencia de conjuntos se compone de: Un registro del tipo registro propietario y varios registros mienbro relacionados del tipo registro miembro\\
+\includegraphics[scale=.7]{propietario-miembro.png}\\
+\subsubsection{Tipos especiales de conjuntos}
+Hay dos tipos especiales de conjuntos: los conjuntos propiedad del sistema y los conjuntos multimiembro. Un tercer tipo, el llamado conjunto recursivo, no estaba permitido en el informe CODASYL original. Un conjunto propiedad del sistema es un conjunto sin tipo de registro propietario, estos tienen dos funciones principales:
+\begin{itemize}
+\item[] Proveen puntos de entrada a la base de datos a través de los registros del tipo de registros miembro especificado.
+\item[] Pueden servir para ordenar los registros de un tipo de registros dado mediante especificaciones de ordenamiento del conjunto. 
+\end{itemize}
+Los conjuntos multimiembro se utilizan en casos en los que los registros miembro de un conjunto pueden pertenecer a mas de un tipo de registros
+
+\subsubsection{Representaciones almacenadas de ejemplares de conjuntos}
+Suelen representarse como anillos que enlazan el registro propietario con todos los registros miembro del conjunto. Al examinar el campo de tipo, el sistema puede saber si el registro es el propietario del ejemplar de conjunto o es uno de los registro miembro.\\
+Un SCBD puede implementar los conjuntos de diversas maneras, pero la representación elegida debera permitir al sistema realizar todas las operaciones:
+\begin{itemize}
+\item Dado el registro propietario, encontrar los registros miembros de la ocurrenccia de conjunto.
+\item Dado un registro propietario, encontrar el primero, i-esimo o último registro miembro de la ocurrencia de conjunto, Si no existe ningun registro así, indicar ese hecho.
+\item Dado un registro miembro, encontrar el siguiente registro miembro de la ocurrencia de conjunto, Si no existe ningún otro, indicar ese hecho.
+\item Dado un registro miembro, encontrar el registro propietario de la ocurrencia de conjunto.
+\end{itemize}
+Con las otras representaciones de conjuntos es posible implementar con mayor eficiencia algunas de las operaciones de conjuntos, Aqui haremos una breve mención de cinco de ellas:
+\begin{enumerate}
+\item Representacion de lista circulas con doble enlace.
+\item Representación de apuntador al propietario.
+\item Registros miembro contiguos.
+\item Arreglos de apuntadores.
+\item Representación indizada.
+\end{enumerate}
+\subsubsection{Opciones de inserción y retención de conjuntos}
+Las opciones de inserción especifican lo que sucedecuando se inserta en la base de datos un registro nuevo que es un tipo de registro miembro, hay dos opciones:
+\begin{itemize}
+\item AUTOMATIC: El nuevo registro miembro se conecta automaticamente a una ocurrencia de conjunto apropiada cuando se inserta el registro.
+\item MANUAL: El nuevo resgistro no se conecta a ninguna ocurrencia de conjunto. Si el programador lo desea, puede conectar despues explícitamente el registro a una ocurrencia de conjunto, mediante la orden CONNECT.
+\end{itemize} 
+Las opciones de retención especifican si un registro de un tipo de registros miembro puede existir en la base de datos por si solo o si siempre debe estar relacionado con un propietario como miembro de algún ejemplar de conjunto. Hay tres opciones de retención:
+\begin{enumerate}
+\item OPTIONAL: un registro miembro puede existir por si solo sin ser miembro de ninguna ocurrencica del conjunto. Se le puede conectar y desconectar.
+\item MANDATORY: Ningún registro miembro puede existir por sí solo; siempre debe ser miembro de una ocurrencia de conjunto del tipo de conjuntos. Se le puede reconectar en una sola operación de una ocurrencia de conjunto a otra mediante la orden RECONNECT del DML de red.
+\item FIXED:Al igual que en MANDATORY, ningún registro miembro puede existir por sí solo. Por añadidura, una vez insertado en una ocurrencia de conjunto, queda fijo; no se le puede reconectar a otra ocurrencia de conjunto.
+\end{enumerate}
+
+\subsubsection{Combinaciones de opciones de insercion y retencion}
+la mayor parte de las implementaciones del modelo de red sólo permiten estas tres combinaciones "razonables": AUTOMATIC-FIXED, AUTOMATICMANDATORY y MANUAL-OPTIONAL.
+
+\subsubsection{Opciones de ordenamiento de conjuntos}
+Los registros miembro de un ejemplar de conjunto pueden estar ordenados de diversas maneras. El orden puede basarse en un campo de ordenamiento o provenir de la secuencia temporal de inserción de los registros miembro nuevos. Las opciones de ordenamiento disponibles se pueden resumir como sigue:
+
+\begin{itemize}
+\item Ordenadas segun un campo de ordenamiento.
+\item Ordenadas por omisión del sistema.
+\item Primero o último.
+\item Siguiente o previo.
+\end{itemize}
+
+\subsubsection{Definición de datos en el modelo de red}
+debemos declarar al SGBD todos los tipos de registros, tipos de conjuntos, definiciones de elementos de información y restricciones del esquema. Para ello, usamos el DDL de red. Cada SGBD de red tiene una sintaxis un tanto distinta y opciones con pequeñas diferencias en su DDL, de modo que en vez de presentar la sintaxis exacta del DDL del SGBD CODASYL nos concentraremos en entender los diferentes conceptos y opciones disponibles en casi todos los SGBD de red.
+
+\subsubsection{Declaraciones de tipos de registros y de elementos de información}
+Cada tipo de registros recibe un nombre a través de la cláusula RECORD NAME IS (nombre de registro es). Se especifica un formato (tipo de datos) para cada uno de sus elementos de información (campos), junto con cualesquier restricciones que se apliquen a los elementos.
+Para especificar restricciones de clave sobre campos (o combinaciones de campos) que no pueden tener el mismo valor en más de un registro de un cierto tipo de registros, usamos la cláusula DUPLICATES ARE NOT ALLOWED (no se permiten duplicados)
+Otras restricciones que podemos especificar para los campos se refieren a los valores que puede adoptar un campo numérico, mediante la cláusula CHECK (comprobar).\\
+\includegraphics[scale=1]{esquema.png}\\
+\subsubsection{Declaraciones de tipos de conjuntos y opciones de selección de conjuntos}
+Cada tipo de conjuntos se nombra con la cláusula SET NAME IS (el nombre del conjunto es).
+Las opciones (restricciones) de inserción y retención, se especifican para cada tipo de conjuntos mediante las cláusulas INSERTlON IS (la inserción es) y RETENTlON IS (la retención es).
+La cláusula SET SELECTION (selección de conjunto) sirve para cuando la opción de inserción es AUTOMATIC, porque deberemos especificar la forma en que el sistema seleccionará automáticamente una ocurrencia de conjunto a la cual conectará un nuevo registro miembro cuando éste se inserte en la base de datos.\\
+Tres métodos comunes de especificar la selección de conjunto son:
+SET SELECTION IS STRUCTURAL\\
+SET SELECT~ON IS BY APPLICATION\\
+SET SELECTION IS BY VALUE OF <nombre de campo> IN <nombre de tipo de registros>\\
+
+Otra opción para los conjuntos es especificar cómo se van a ordenar los registros miembro individuales en un ejemplar del conjunto. Esto es importante dada la naturaleza de registro por registro del DML de red.
+La cláusula ORDER IS (el orden es) sirve para este fin, a veces aunada a la cláusula KEY IS (la clave es). Entre las opciones de la cláusula ORDER IS están las siguientes:\\
+
+ORDER IS SORTED BY DEFINED KEYS (el orden es según las claves definidas)\\
+ORDER IS FIRST (o LAST)\\
+ORDER IS BY SYSTEM DEFAULT (el orden se deja al sistema)\\
+ORDER IS NEXT (o PRIOR)\\
+
+
+
+\section{Modelo Orientado a objetos}
+ La tecnología de bases de datos vive un momento de lenta transición del modelo relacional a otros modelos. Entre éstos se encuentra el multidimensional para sistemas OLAP, el semiestructurado para bases de datos XML de intercambio electrónico de información, el modelo dimensional para creación de Data Warehouse y el orientado a objetos. En una base de datos orientada a objetos, los componentes se almacenan como objetos y no como datos, tal y como hace una base relacional, cuya representación son las tablas.
+
+Algo importante que debemos resaltar es que hoy en día, las empresas siguen utilizando los manejadores de bases de datos relacionales y no se sabe aún si serán suplantadas por completo, ni cuándo.
+
+\subsection{Utilidad del modelo de base de datos orientado a objetos}
+Los administradores de base de datos (DBMS por sus siglas en inglés) evolucionan con el afán de satisfacer nuevos requerimientos tecnológicos y de información. Aunque los DBMS relacionales (RDBMS) son actualmente líderes del mercado y brindan las soluciones necesarias a las empresas comerciales, existen aplicaciones que necesitan funciones con las que no cuentan. Las CAD/CAM, los sistemas multimedia, como los geográficos y de medio ambiente, los de gestión de imágenes y documentos y los de apoyo a las decisiones necesitan de modelos de datos complejos, difíciles de representar como tuplas de una tabla.
+
+En general, estas aplicaciones necesitan manipular objetos y los modelos de datos deben permitirles expresar su comportamiento y las relaciones entre ellos. \\
+\includegraphics[scale=.6]{relavspoo.png}\\
+\subsection{Definición}
+La orientación a objetos representa el mundo real y resuelve problemas a través de objetos, ya sean tangibles o digitales. Este paradigma tecnológico considera un sistema como una entidad dinámica formada de componentes. Un sistema sólo se define por sus componentes y la manera en que éstos interactúan. \\
+\includegraphics[scale=.7]{caractpoo.png}\\
+
+\subsection{Persistencia en el modelo orientado a objetos}
+La persistencia es una característica necesaria de los datos en un sistema de bases de datos. Recordemos que consiste en la posibilidad de recuperar datos en el futuro. Esto implica que los datos se almacenan a pesar del término del programa de aplicación. En resumen, todo administrador de base de datos brinda persistencia a sus datos.\\
+
+En el caso de los sistemas de gestión de base de datos orientada a objetos (OODBMS por sus siglas en inglés), la persistencia implica almacenar los valores de atributos de un objeto con la transparencia necesaria para que el desarrollador de aplicaciones no tenga que implementar ningún mecanismo distinto al mismo lenguaje de programación orientado a objetos. 
+
+Lo anterior traería como ventaja que no sería necesario el uso de dos lenguajes de programación para construir una aplicación; es decir, actualmente, el desarrollo de aplicaciones se hace con lenguajes de programación orientada a objetos almacenando datos en bases relacionales, por lo que el desarrollador debe utilizar un lenguaje para la aplicación (Java, PHP, C++) y otro para la base de datos (SQL). 
+
+\subsection{Sistemas administradores de bases de datos orientados a objetos}
+Los sistemas de bases de datos orientados a objetos parecen ser la tecnología más prometedora para los próximos años, aunque carecen de un modelo de datos común y de fundamentos formales, además de que su comportamiento en seguridad y manejo de transacciones no están a la altura de los programas actuales de administradores de bases de datos. \\
+Hay organismos en pro de la estandarización de este tipo de sistemas manejadores de bases de datos, como el OMG (Object Management Group), la CAD Framework Initiative y el grupo de trabajo de ANSI (American National Standards Institute)\\
+Algo que apoya esta tendencia es que a pesar de que la ingeniería de software orientada a objetos requiere mucho tiempo de análisis, la mayoría de los proyectos de desarrollo son más cortos y requieren menos personas, además de que la cantidad de código es menor. Veamos su concepto y características más importantes.
+\subsubsection{Definición}
+En la actualidad, hay mucha atención hacia los OODBMS, tanto en el terreno de desarrollo como en el teórico, no hay una definición estándar de lo que estos sistemas significan. Existen tres problemas principales que impiden una definición generalizada: 
+\begin{enumerate}
+\item La falta de un modelo de datos común entre los diferentes sistemas.
+\item La carencia de fundamentos formales.
+\item Una actividad experimental muy fuerte.
+\end{enumerate}
+El problema de estos sistemas es similar al de las bases de datos relacionales a mitad de los setenta. La gente se dedicaba a desarrollar implementaciones en lugar de definir las especificaciones para luego hacer la tecnología que permitiera implementarlas. Se espera que de los prototipos y desarrollos actuales de los OODBMS surja un modelo. Aunque también se corre el riesgo de que alguno de éstos se convierta en el estándar por su demanda en el mercado. A manera de definición podemos decir que un OODBMS debe satisfacer dos criterios: Debe ser un DBMS yDebe ser un sistema orientado a objetos, consistente con los lenguajes de programación orientada a objetos 
+
+\subsection{caracteristicas}
+\subsubsection{Objetos complejos}
+Los objetos complejos son creados a partir de objetos simples —tipos de datos—. Éstos son:
+\begin{itemize}
+\item Enteros
+\item Caracteres
+\item Cadenas de bytes
+\item Expresiones del tipo booleano
+\item Números de punto flotante
+\end{itemize}
+
+Los objetos complejos pueden ser:
+\begin{itemize}
+\item Conjuntos —sets—
+\item Listas
+\item Arreglos
+\end{itemize}
+\subsubsection{Identidad de objetos}
+La identidad de objetos ha existido desde hace mucho tiempo en los lenguajes de programación, pero en las bases de datos es más reciente. El objetivo es contar con objetos que tengan una existencia independiente de sus valores. Así, dos objetos pueden ser idénticos si son el mismo objeto o pueden ser iguales si tienen los mismos valores. La identidad cobra relevancia cuando un objeto se comparte con otros y cuando se actualiza. En un modelo basado en identidad, dos objetos pueden compartir un objeto hijo.\\
+Soportar identidad de objetos implica que el OODBMS ofrece:
+\begin{itemize}
+\item Operaciones como asignación de objetos
+\item Copiado de objetos
+\item Comprobación de la identidad o igualdad de objetos.
+\end{itemize}
+
+La principal manera de implementar la identidad de objetos es mediante un OID —objeto identificador— independiente de los valores de los atributos del objeto. Éstos son implementados por el sistema, lo que mejora el rendimiento.
+
+\subsubsection{Encapsulación}
+La idea de encapsulación es tomada de los lenguajes de programación en los que para todo objeto existe: Una parte visible y una parte invisible. Traducido a bases de datos, un objeto encapsula programas y datos.
+\subsubsection{Herencia}
+La herencia tiene dos ventajas: Es una herramienta poderosa de modelado, ya que brinda una descripción precisa del mundo y  Ayuda a simplificar la implementación de las aplicaciones. Para entender el manejo de la herencia en los sistemas de bases de datos orientados a objetos, asumamos que tenemos empleados y estudiantes.
+\includegraphics[scale=.6]{claseemal.png}\\
+En un sistema relacional, el diseñador de bases de datos definiría una relación empleado y estudiante y también escribiría el código para la operación de aumentar sueldo. Para la relación empleado, tendría que escribir el código para la operación de obtener promedio.\\
+
+En un sistema orientado a objetos, usando adecuadamente la herencia, nos daríamos cuenta de que empleado y estudiante son personas y comparten los atributos nombre y edad. Entonces, declararíamos una clase empleado como un tipo especial de la clase persona, que incluiría una operación especial para aumentar Sueldo() y un atributo de salario. De forma similar, se declararía el estudiante como un tipo especial de la clase persona con el atributo adicional de conjunto de grados y la operación especial para obtener Promedio().
+
+El modelo es más cercano a la realidad y nos permite ahorrar código de programación. Por esto, se dice que la herencia ayuda a reutilizar código, ya que cada programa está disponible para ser compartido.
+
+\subsubsection{Sobreescritura y sobrecarga}
+
+En la programación orientada a objetos, tenemos la ventaja de poder reescribir métodos con el mismo nombre. Esto significa contar con varios métodos que se llamen igual, pero que realicen distintas operaciones. Para poder programar estos métodos llamados sobrecargados, es necesario que cambie algo en sus parámetros, como el número, orden o tipo de dato. Esto mismo es posible en una base de datos orientada a objetos.
+\subsubsection{Completa capacidad computacional}
+Los administradores de bases de datos relacionales cuentan con un lenguaje para realizar procesos computacionales sobre los datos: el SQL. Además, adicionan un lenguaje procedimental que permite la definición de variables, manejo de excepciones, ciclos y estructuras condicionales. Algunos de estos lenguajes son:\\
+pl/sql para Oracle \\
+pl/pgsql para PostgreSQL \\
+Transact-SQL para SQL Server de Microsoft\\
+
+Los administradores de bases de datos orientadas a objetos también deben contar con un lenguaje que puede realizar cualquier procesamiento. En este sentido, lo más común es que los OODBMS integren lenguajes computacionalmente completos dentro de la base de datos. Estos pueden ser los que ya existen en el mercado y que se usan como lenguajes aplicación general (Java, C++, etc.).
+
+
+\section{Modelo NoSQL}
+Son  muchas  las  aplicaciones  web  que  utilizan  algún  tipo  de  bases  de  datos  para  funcionar.  Hasta  ahora estábamos  acostumbrados  a  utilizar  bases  de  datos  SQL  como  son  MySQL,  Oracle  o  MS  SQL,  pero  desde hace ya algún tiempo han aparecido otras que reciben el nombre de NoSQL (Not only SQL –No sólo SQL) y que  han  llegado  con  la intención  de  hacer  frente  a  las  bases  relacionales  utilizadas  por  la  mayoría  de  los usuarios.
+\subsection{¿Que son las bases de datos NoSQL?}
+Se puede decir que la aparición del término NoSQL aparece con la llegada de la web 2.0 ya que hasta ese momento  sólo  subían  contenido  a  la  red  aquellas  empresas  que  tenían  un  portal,  pero  con  la  llegada  de aplicaciones  como Facebook,  Twitter  o  Youtube,  cualquier  usuario  podía  subir  contenido,  provocando  así un crecimiento exponencial de los datos.
+
+Es  en  este  momento  cuando  empiezan  a  aparecer  los  primeros  problemas  de  la  gestión  de  toda  esa información almacenada en bases  de  datos relacionales. En un principio, para solucionar estos problemas de  accesibilidad,  las  empresas  optaron  por  utilizar  un  mayor  número  de  máquinas  pero  pronto  se  dieron cuenta de que esto no solucionaba el problema, además de ser una solución muy cara. La otra solución era la  creación  de  sistemas  pensados  para  un  uso  específico  que  con  el  paso  del  tiempo  han  dado  lugar  a soluciones robustas, apareciendo así el movimiento NoSQL. 
+
+Por  lo  tanto  hablar  de  bases  de  datos  NoSQL  es  hablar  de estructuras  que  nos  permiten  almacenar información  en  aquellas  situaciones  en  las  que  las  bases  de  datos  relacionales generan  ciertos  problemas debido  principalmente  a  problemas  de  escalabilidad  y  rendimiento  de  las  bases  de  datos  relacionales donde se dan cita miles de usuarios concurrentes y con millones de consultas diarias.
+
+Además  de  lo  comentado  anteriormente,  las  bases  de  datos  NoSQL  son  sistemas  de  almacenamiento  de información  que  no cumplen  con  el esquema  entidad–relación.  Tampoco  utilizan  una  estructura  de  datos 
+en  forma  de  tabla  donde  se  van  almacenando  los  datos  sino  que  para  el  almacenamiento  hacen  uso  de otros  formatos  como  clave–valor, mapeo de columnas o grafos (ver epígrafe ‘Tipos  de  bases  de  datos NoSQL’).
+
+\subsection{Ventajas de los sistemas NoSQL}
+Esta forma de almacenar la información ofrece ciertas ventajas sobre los modelos relacionales. Entre las ventajas más significativas podemos destacar.
+\begin{itemize}
+\item Se ejecutan en máquinas con pocos recursos.
+\item Escalabilidad orizontal.
+\item Pueden manejar gran cantidad de datos.
+\item No genera cuellos de botella.
+\end{itemize}
+
+\subsection{Principales diferencias con las bases de datos SQL}
+\begin{itemize}
+\item No utilizan SQL como lenguaje de consultas.
+\item No utilian estructurasa fijas como tablas para el almacenamiento de datos.
+\item No suelen permitir operaciones JOIN.
+\item Arquitectura distribuida.
+\end{itemize}
+
+
+
+\subsection{Tipos de bases de datos NoSQL}
+Dependiendo de la forma en la almacenan la información nos podemos encontrar varios tipos distintos de bases de datos NoSQL. Veamos los tipos mas utilizados.
+\subsubsection{Bases de datos clave-valor}
+Son  el  modelo  de  base  de  datos  NoSQL  más  popular,  además  de  ser  la  más  sencilla  en  cuanto  a funcionalidad. En este tipo de sistema, cada elemento está identificado por una llave única, lo que permite la recuperación de  la información de  forma muy rápida, información que  habitualmente  está almacenada como un objeto binario (BLOB). Se caracterizan por ser muy eficientes tanto para las lecturas como para las escrituras. 
+
+\subsubsection{Bases de datos documentales}
+Este  tipo almacena la información como un documento, generalmente  utilizando para ello una estructura simple como JSON o XML y donde se utiliza una clave única para cada registro. Este tipo de implementación permite,  además  de  realizar  búsquedas  por  clave–valor,  realizar  consultas  más  avanzadas  sobre  el contenido del documento. 
+Son las bases de datos NoSQL más versátiles. Se pueden utilizar en gran cantidad de proyectos, incluyendo muchos que tradicionalmente funcionarían sobre bases de datos relacionales.
+
+\subsubsection{Bases de datos en grafo}
+En este tipo de bases de datos, la información se representa como nodos de un grafo y sus relaciones conlas aristas del mismo, de manera que se puede hacer uso de la teoría de grafos para recorrerla. Para sacar el máximo rendimiento a este tipo de bases de datos, su estructura debe estar totalmente normalizada, de forma que cada tabla tenga una sola columna y cada relación dos. Este  tipo  de  bases  de  datos  ofrece  una  navegación  más  eficiente  entre  relaciones  que  en  un  modelo relacional.
+
+\subsubsection{Bases de datos orientadasa a objetos}
+En este tipo, la información se representa mediante objetos, de la misma forma que son representados en los lenguajes de programacion orientada a objetos(POO) como ocurre en JAVA, C\# o  Visual Basic.NET
+\newpage
+\section*{Bibliografia}
+Elmasri, R., \& Navathe, S. B. (s.f.). Sistemas de bases de datos: Conceptos fundamentales (2ª ed.). D.F, México: Addison-Wesley Iberoamericana.\\
+
+\url{https://www.acens.com/wp-content/images/2014/02/bbdd-nosql-wp-acens.pdf}\\
+
+\url{https://programas.cuaed.unam.mx/repositorio/moodle/pluginfile.php/782/mod_resource/content/8/contenido/index.html}
+
+
+\end{document}
